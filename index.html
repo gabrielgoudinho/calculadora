@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Taxa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      margin-top: 15px;
+      display: block;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .resultado {
+      background-color: #e9f7ef;
+      padding: 15px;
+      border-left: 5px solid #28a745;
+      border-radius: 5px;
+      white-space: pre-wrap;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      background-color: #28a745;
+    }
+
+    .copy-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Calculadora de Taxa</h2>
+
+    <label for="fipe">Valor da FIPE (ex: 25000.00):</label>
+    <input type="number" id="fipe" step="0.01" min="0" value="25000">
+
+    <label for="taxa">Selecione a taxa (%):</label>
+    <select id="taxa">
+      <option value="0.0015">0,15%</option>
+      <option value="0.0017">0,17%</option>
+      <option value="0.0018">0,18%</option>
+      <option value="0.0020">0,20%</option>
+      <option value="0.0021">0,21%</option>
+      <option value="0.0022">0,22%</option>
+      <option value="0.0023">0,23%</option>
+      <option value="0.0025">0,25%</option>
+      <option value="0.0027">0,27%</option>
+      <option value="0.0028">0,28%</option>
+      <option value="0.0033">0,33%</option>
+      <option value="0.0040">0,40%</option>
+      <option value="0.0050">0,50%</option>
+    </select>
+
+    <label for="pacote">Selecione o pacote:</label>
+    <select id="pacote">
+      <option value="31.78">Bronze - R$ 31,78</option>
+      <option value="40.77">Prata - R$ 40,78</option>
+      <option value="45.78">Ouro - R$ 45,78</option>
+      <option value="50.78">Ouro especiais - R$ 50,78</option>
+      <option value="51.78">Diamante - R$ 51,78</option>
+      <option value="70.78">Frotas - R$ 70,78</option>
+    </select>
+
+    <label for="vistoria">Valor da vistoria:</label>
+    <select id="vistoria">
+      <option value="200">R$ 200,00</option>
+      <option value="175">R$ 175,00</option>
+      <option value="150">R$ 150,00</option>
+      <option value="125">R$ 125,00</option>
+      <option value="100">R$ 100,00</option>
+      <option value="75">R$ 75,00</option>
+      <option value="50">R$ 50,00</option>
+    </select>
+
+    <label for="opcional">Valor do opcional (ex: 4.90):</label>
+    <input type="number" id="opcional" value="0.00" step="0.01" min="0">
+
+    <button id="calcular">Calcular</button>
+
+    <div class="resultado" id="resultado"></div>
+    <button class="copy-btn" id="copiar">Copiar Resultado</button>
+  </div>
+
+  <script>
+    function diasRestantesNoMes() {
+      const hoje = new Date();
+      const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
+      return ultimoDia - hoje.getDate() + 1;
+    }
+
+    function calcular() {
+      const fipe = parseFloat(document.getElementById("fipe").value) || 0;
+      const taxa = parseFloat(document.getElementById("taxa").value) || 0;
+      const pacote = parseFloat(document.getElementById("pacote").value) || 0;
+      const vistoria = parseFloat(document.getElementById("vistoria").value) || 0;
+      const opcional = parseFloat(document.getElementById("opcional").value) || 0;
+
+      if (fipe <= 0) {
+        alert("Por favor, insira um valor válido para a FIPE.");
+        return;
+      }
+
+      const diasRestantes = diasRestantesNoMes();
+      const taxaMensal = fipe * taxa;
+      const taxaProporcional = (taxaMensal / 30) * diasRestantes;
+      const total = taxaProporcional + pacote + vistoria + opcional;
+
+      const resultadoTexto =
+        `📅 Dias restantes no mês: ${diasRestantes}\n` +
+        `💰 ${(taxa * 100).toFixed(2)}% da FIPE (mensal): R$ ${taxaMensal.toFixed(2)}\n` +
+        `📆 Taxa proporcional (${diasRestantes} dias): R$ ${taxaProporcional.toFixed(2)}\n` +
+        `📦 Pacote: R$ ${pacote.toFixed(2)}\n` +
+        `🔍 Vistoria: R$ ${vistoria.toFixed(2)}\n` +
+        `🧩 Opcional: R$ ${opcional.toFixed(2)}\n\n` +
+        `🎯 Total: R$ ${total.toFixed(2)}`;
+
+      document.getElementById("resultado").innerText = resultadoTexto;
+    }
+
+    function copiarResultado() {
+      const resultado = document.getElementById("resultado").innerText;
+      if (!resultado) {
+        alert("Nada para copiar.");
+        return;
+      }
+      navigator.clipboard.writeText(resultado)
+        .then(() => alert("Resultado copiado!"))
+        .catch(() => alert("Erro ao copiar o resultado."));
+    }
+
+    // Eventos
+    document.getElementById("calcular").addEventListener("click", calcular);
+    document.getElementById("copiar").addEventListener("click", copiarResultado);
+  </script>
+
+</body>
+</html>

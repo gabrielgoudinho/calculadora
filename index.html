@@ -115,7 +115,6 @@
 <body>
 
   <div class="container">
-    <!-- 🖼️ Substitua "logo-continental.png" pelo nome correto do arquivo da logo -->
     <img src="logo-continental.jpg" alt="Logo Continental" class="logo">
 
     <h2>Calculadora de Taxa</h2>
@@ -190,19 +189,38 @@
         return;
       }
 
+      const hoje = new Date();
+      const mes = hoje.getMonth(); // 0 = jan, 10 = nov
+      const ano = hoje.getFullYear();
+
       const diasRestantes = diasRestantesNoMes();
       const taxaMensal = fipe * taxa;
       const taxaProporcional = (taxaMensal / 30) * diasRestantes;
-      const total = taxaProporcional + pacote + vistoria + opcional;
+
+      // aplica desconto somente se for novembro de 2025
+      let desconto = 0;
+      let textoDesconto = "";
+      let totalComDesconto;
+
+      if (mes === 10 && ano === 2025) {
+        desconto = 0.25;
+        const subtotalMensal = taxaProporcional + pacote + opcional;
+        const valorComDesconto = subtotalMensal * (1 - desconto);
+        totalComDesconto = valorComDesconto + vistoria;
+        textoDesconto = "Desconto 25% mensalidade (não descontar sobre a vistoria)";
+      } else {
+        totalComDesconto = taxaProporcional + pacote + opcional + vistoria;
+      }
 
       const resultadoTexto =
-        `📅 Dias restantes no mês: ${diasRestantes}\n` +
-        `💰 ${(taxa * 100).toFixed(2)}% da FIPE (mensal): R$ ${taxaMensal.toFixed(2)}\n` +
-        `📆 Taxa proporcional (${diasRestantes} dias): R$ ${taxaProporcional.toFixed(2)}\n` +
-        `📦 Pacote: R$ ${pacote.toFixed(2)}\n` +
-        `🔍 Vistoria: R$ ${vistoria.toFixed(2)}\n` +
-        `🧩 Opcional: R$ ${opcional.toFixed(2)}\n\n` +
-        `🎯 Total: R$ ${total.toFixed(2)}`;
+        `Dias restantes no mês: ${diasRestantes}\n` +
+        `${(taxa * 100).toFixed(2)}% da FIPE (mensal): R$ ${taxaMensal.toFixed(2)}\n` +
+        `Taxa proporcional (${diasRestantes} dias): R$ ${taxaProporcional.toFixed(2)}\n` +
+        `Pacote: R$ ${pacote.toFixed(2)}\n` +
+        `Opcional: R$ ${opcional.toFixed(2)}\n` +
+        (textoDesconto ? `${textoDesconto}\n` : "") +
+        `Adesão/Vistoria: R$ ${vistoria.toFixed(2)}\n\n` +
+        `Total: R$ ${totalComDesconto.toFixed(2)}${textoDesconto ? " (total da mensalidade proporcional com desconto de 25% + vistoria)" : ""}`;
 
       document.getElementById("resultado").innerText = resultadoTexto;
     }
@@ -213,7 +231,9 @@
         alert("Nada para copiar.");
         return;
       }
-      navigator.clipboard.writeText(resultado)
+      // Remove emojis antes de copiar
+      const textoLimpo = resultado.replace(/[^\x00-\x7F]/g, "");
+      navigator.clipboard.writeText(textoLimpo)
         .then(() => alert("Resultado copiado!"))
         .catch(() => alert("Erro ao copiar o resultado."));
     }
@@ -223,3 +243,4 @@
   </script>
 </body>
 </html>
+

@@ -171,76 +171,58 @@
   </div>
 
   <script>
-    function diasRestantesNoMes() {
-      const hoje = new Date();
-      const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
-      return ultimoDia - hoje.getDate();
+  function diasRestantesNoMes() {
+    const hoje = new Date();
+    const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
+    return ultimoDia - hoje.getDate();
+  }
+
+  function calcular() {
+    const fipe = parseFloat(document.getElementById("fipe").value) || 0;
+    const taxa = parseFloat(document.getElementById("taxa").value) || 0;
+    const pacote = parseFloat(document.getElementById("pacote").value) || 0;
+    const vistoria = parseFloat(document.getElementById("vistoria").value) || 0;
+    const opcional = parseFloat(document.getElementById("opcional").value) || 0;
+
+    if (fipe <= 0) {
+      alert("Por favor, insira um valor válido para a FIPE.");
+      return;
     }
 
-    function calcular() {
-      const fipe = parseFloat(document.getElementById("fipe").value) || 0;
-      const taxa = parseFloat(document.getElementById("taxa").value) || 0;
-      const pacote = parseFloat(document.getElementById("pacote").value) || 0;
-      const vistoria = parseFloat(document.getElementById("vistoria").value) || 0;
-      const opcional = parseFloat(document.getElementById("opcional").value) || 0;
+    const diasRestantes = diasRestantesNoMes();
+    const taxaMensal = fipe * taxa;
+    const taxaProporcional = (taxaMensal / 30) * diasRestantes;
 
-      if (fipe <= 0) {
-        alert("Por favor, insira um valor válido para a FIPE.");
-        return;
-      }
+    // TOTAL SEM QUALQUER DESCONTO
+    const total = taxaProporcional + pacote + opcional + vistoria;
 
-      const hoje = new Date();
-      const mes = hoje.getMonth(); // 0 = jan, 10 = nov
-      const ano = hoje.getFullYear();
+    const resultadoTexto =
+      `Dias restantes no mês: ${diasRestantes}\n` +
+      `${(taxa * 100).toFixed(2)}% da FIPE (mensal): R$ ${taxaMensal.toFixed(2)}\n` +
+      `Taxa proporcional (${diasRestantes} dias): R$ ${taxaProporcional.toFixed(2)}\n` +
+      `Pacote: R$ ${pacote.toFixed(2)}\n` +
+      `Opcional: R$ ${opcional.toFixed(2)}\n` +
+      `Adesão/Vistoria: R$ ${vistoria.toFixed(2)}\n\n` +
+      `Total: R$ ${total.toFixed(2)}`;
 
-      const diasRestantes = diasRestantesNoMes();
-      const taxaMensal = fipe * taxa;
-      const taxaProporcional = (taxaMensal / 30) * diasRestantes;
+    document.getElementById("resultado").innerText = resultadoTexto;
+  }
 
-      // aplica desconto somente se for novembro de 2025
-      let desconto = 0;
-      let textoDesconto = "";
-      let totalComDesconto;
-
-      if (mes === 10 && ano === 2025) {
-        desconto = 0.25;
-        const subtotalMensal = taxaProporcional + pacote + opcional;
-        const valorComDesconto = subtotalMensal * (1 - desconto);
-        totalComDesconto = valorComDesconto + vistoria;
-        textoDesconto = "Desconto 25% mensalidade (não descontar sobre a vistoria)";
-      } else {
-        totalComDesconto = taxaProporcional + pacote + opcional + vistoria;
-      }
-
-      const resultadoTexto =
-        `Dias restantes no mês: ${diasRestantes}\n` +
-        `${(taxa * 100).toFixed(2)}% da FIPE (mensal): R$ ${taxaMensal.toFixed(2)}\n` +
-        `Taxa proporcional (${diasRestantes} dias): R$ ${taxaProporcional.toFixed(2)}\n` +
-        `Pacote: R$ ${pacote.toFixed(2)}\n` +
-        `Opcional: R$ ${opcional.toFixed(2)}\n` +
-        (textoDesconto ? `${textoDesconto}\n` : "") +
-        `Adesão/Vistoria: R$ ${vistoria.toFixed(2)}\n\n` +
-        `Total: R$ ${totalComDesconto.toFixed(2)}${textoDesconto ? " (total da mensalidade proporcional com desconto de 25% + vistoria)" : ""}`;
-
-      document.getElementById("resultado").innerText = resultadoTexto;
+  function copiarResultado() {
+    const resultado = document.getElementById("resultado").innerText;
+    if (!resultado) {
+      alert("Nada para copiar.");
+      return;
     }
+    const textoLimpo = resultado.replace(/[^\x00-\x7F]/g, "");
+    navigator.clipboard.writeText(textoLimpo)
+      .then(() => alert("Resultado copiado!"))
+      .catch(() => alert("Erro ao copiar o resultado."));
+  }
 
-    function copiarResultado() {
-      const resultado = document.getElementById("resultado").innerText;
-      if (!resultado) {
-        alert("Nada para copiar.");
-        return;
-      }
-      // Remove emojis antes de copiar
-      const textoLimpo = resultado.replace(/[^\x00-\x7F]/g, "");
-      navigator.clipboard.writeText(textoLimpo)
-        .then(() => alert("Resultado copiado!"))
-        .catch(() => alert("Erro ao copiar o resultado."));
-    }
-
-    document.getElementById("calcular").addEventListener("click", calcular);
-    document.getElementById("copiar").addEventListener("click", copiarResultado);
-  </script>
+  document.getElementById("calcular").addEventListener("click", calcular);
+  document.getElementById("copiar").addEventListener("click", copiarResultado);
+</script>
 </body>
 </html>
 
